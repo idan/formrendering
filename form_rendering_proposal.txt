@@ -1,0 +1,99 @@
+At DjangoCon Europe 2011, Gregor Müllegger gave a great lightning talk about his work on a revised form rendering API:
+
+http://www.scribd.com/doc/57270484/Djangocon-EU-2011-Revised-Form-Rendering-Lightning-Talk-by-Gregor-Mullegger
+
+I sat down with Gregor, Jannis, Russell, Alex, Ericflo, Andrew Godwin, and many other fine minds at the sprints to think about his proposal and help refine it. At the risk of starting a bikeshedding war, I'd like to share the results of the sprints and get some feedback on our proposed approach.
+
+I'm very pleased with the resulting API. It has one significant wart, but having chewed on the alternatives, I think there is consensus that this API represents a good compromise between purity and practical considerations.
+
+# Goals
+
+The existing rendering facilities for forms aren't bad, but they suffer from the following drawbacks:
+
+1. All-or-nothing: if you'd like to customize one small part of form rendering, you have to go the whole hog and write out a ton of boilerplate.
+2. "Frontend developers need not apply": large parts of form rendering happen in Python. If a frontend dev wants to customize certain aspects of form.as_p's output, they've got to bust out the python.
+3. Prevents modularity and code re-use: with large bits of markup locked inside .py files, it's difficult for designers to share reusable form patterns.
+4. DOCTYPE lock-in: designers are forced to use the XML style of tags, breaking validation of other doctypes when forms are present.
+
+The new form rendering API addresses these drawbacks, and as such, has the following desirable properties:
+
+1. No backwards-incompatible changes: the new API coexists peacefully with the old one.
+2. Simple beginner usage: if all you're comfortable using is {{ form.as_p }}, the new API retains a similarly brief approach.
+3. Vastly better customizability: the new API provides an expressive and flexible means for specifying how forms should be rendered, and allows you to override just the parts that need changing.
+4. Significant improvements to the rendering of form rows with multiple fields (for example, first and last name, or credit card and expiration).
+5. Dogfooding: the new API does have some new tags, but a lot of the internals and examples for customization are just using the existing template system. This provides a lot of flexibility, but it also means that the "new-newforms" API should feel familiar to existing developers.
+6. Modularity: it will be possible to produce reusable libraries of form rendering templates.
+
+
+# The anatomy of form rendering templates
+
+Forms are composed of three logical units:
+
+1. A template which represents the form itself, including some form-specific configuration.
+2. A template which represents a given "row" in a form. A row is an abstract concept, and doesn't have to represent a horizontal slice of anything (but usually does). The existing form rendering API produces rows in the shape of <p>'s, <li>'s, and <tr>'s. In the new form rendering API, Django supplies the formrow templates for all three of these row "types", but users can easily override one of these to create a formrow based on <div>'s, for example.
+3. A template which represents a given widget in the form. These are the widgets which are currently supplied by the framework, but supplied as templates instead of being buried in widgets.py.
+
+
+# API Usage Tutorial
+
+TL;DR: The new API introduces the following template tags:
+- form
+- formconfig
+- formrow
+- formfield
+
+For the following examples, "myform" is a form instance present in the template's context.
+
+# {% form %}
+
+The new form rendering API introduces a {% form %} tag:
+ 
+  {% form myform %} {# equivalent to the following line #}
+  {% form myform using "templates/forms/as_table.html" %}
+  {% form myform using "templates/forms/as_p.html" %}
+  {% form myform using "templates/forms/as_ul.html" %}
+
+In it simplest incarnation, it works like the existing form.as_XX methods. Users select a row type by means of the optional using argument. Django will need to supply the existing row types (table, p, ul) to ease the transition.
+
+Users can specify their own form templates using the same syntax:
+
+  {% form myform using "fancy_div.html" %}
+  {% form myotherform using "fancy_div.html" %}
+
+The form tag can also load a configuration inline, as follows:
+
+  {% form myform using %}
+    ... layout goes here ...
+  {% endform %}
+
+The template contents that go inside a form/endform are identical to those that can be included from an external template file, as in the previous examples.
+
+The form tag has one more trick up its sleeve: it can take multiple forms as an argument:
+
+  {% form myform1, myform2 using "templates/forms/as_p.html" %}
+
+In the Django-supplied templates, these would be rendered sequentially, with form errors at the top of every form. However, users can write their own form templates which might mix fields from each form, and group both form's errors at the top.
+
+First, let's look at a simple form template.
+
+# Form Templates
+
+## {% formrow %}
+A form template defines the settings and layout of a form. Let's start with a simple replacement for as_table:
+
+  {% for field in form %}
+    {% formrow field %}
+  {% endfor %}
+
+The formrow tag is responsible for producing a form's row, and is only valid within the scope of a form tag. The formrow tag takes an optional formrow template. If a formrow's template is not specified, the default is used (as_table). Changing the template to produce <p>'s is accomplished thusly:
+
+  {% for field in form %}
+    {% formrow field using "templates/forms/rows/as_p.html%}
+  {% endfor %}
+
+Formrow, like form, can take multiple fields:
+
+  {% formrow firstname, lastname using "myfancynamerow.html" %}
+
+Django supplies the formrow templates for table, ul, and p.
+

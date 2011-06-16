@@ -1,0 +1,126 @@
+my_template.html
+{% form myform %} == {{ form }}
+{% form myform using "forms/as_p.html" %} == {{ form.as_p }}
+{% form myform using "forms/as_ul.html" %} == {{ form.as_ul }}
+
+{% form myform using "myformconfig.html" %}
+{% form myotherform using "myformconfig.html" %}
+
+{% form myform, myotherform using "forms/as_p.html" %}
+automatic behavior for multiple forms is to render them sequentially
+
+{% form myform using %}
+    {% formfields ... %}
+
+{% endform %}
+
+{% for myform in list_o_forms %}
+    {% form myform using "forms/myconfig.html" %}
+{% endfor %}
+
+{% for foo in bar %}
+    {% form foo using %}
+       {% include "forms/myconfig.html" %}
+   {% endform %}
+{% endfor %}
+
+
+
+forms/as_p.html
+// good documentation idea: alter this to display all errors at the top
+// requires iterating through the forms twice, once for errors, once for the forms themselves
+{% for form in forms %}
+    {% block errors %}
+        {% if errors %}
+            <ul>
+            {% for error in form.nonfield_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}        
+            </ul>
+        {% endif %}
+    {% endblock errors %}
+    {% block fields %}
+        {% for field in form %}
+            {% formrow field using "forms/formrows/p.html" %}
+        {% endfor %}
+        {% for fields in form.hidden_fields %}
+            {% formrow field using "forms/formrows/hidden.html" %}
+        {% endfor %}
+    {% endblock fields %}
+{% endfor %}
+
+forms/as_ul.html
+{% for form in forms %}
+    {% for field in form.visible_fields %}
+        {% formrow field using "forms/formrows/ul.html" %}
+    {% endfor %}
+    {% for fields in form.hidden_fields %}
+        {% formrow field using "forms/formrows/hidden.html" %}
+    {% endfor %}
+{% endfor %}
+
+myformconfig.html
+{% formconfig widget blah.Textarea for "comment" as myformconfig%}
+{% formconfig widget blah.Textarea for forms.charfield %}
+{% formconfig row using "forms/formrows/ul.html" %}
+{% block fields %}
+{% formrow field1 %}
+{% formrow field2 %}
+{% formrow comment using "forms/formrows/p.html" %}
+{% formconfig widget blah.Textarea for forms.charfield %}
+{% formrow field3, field4 using "myformrow.html" %}
+{% endblock %}
+<hr>
+{% block errors %}
+    {% formerrors %}
+    {% formerrors using "myformerrors.html" %}
+{% endblock errors %}
+
+subformconfig.html
+{% extends myformconfig.html %}
+{% block fields %}
+...
+{% endblock %}
+
+multiformconfig.html
+{% formconfig widget blah.Textarea for "form1.comment" %}
+{% formconfig widget blah.Textarea for forms.charfield %}
+{% formrow form1.field1 %}
+{% formrow form2.comment using "forms/formrows/p.html" %}
+{% formrow field3, field4 using "myformrow.html" %}
+
+
+forms/formrows/p.html
+{% for field in formrow_fields %}
+<p>
+    <label ...>{{ field.label }}</label>
+    {% if errors %}
+        ...
+    {% endif %}
+    {% formfield field %}
+</p>    
+{% endfor %}
+
+-------------
+
+1,2,3
+3,4
+5
+
+
+
+
+advancedconfig.html
+{% widget ... %}
+{% formfields ... %}
+
+{% for field in form.fields %}
+    {% formrow field %}
+{% endfor %}
+
+{% formrow field %}
+{% formrow field %}
+{% formrow field1, field2 %}
+{% formrow field %}
+{% formrow field %}
+{% formrow field %}
