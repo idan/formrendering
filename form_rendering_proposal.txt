@@ -17,7 +17,7 @@ The existing rendering facilities for forms aren't bad, but they suffer from the
 
 The new form rendering API addresses these drawbacks, and as such, has the following desirable properties:
 
-1. No backwards-incompatible changes: the new API coexists peacefully with the old one.
+1. No backwards-incompatible changes: the new API coexists peacefully with the old one, allowing for a smooth transition and deprecation of the old formrendering API.
 2. Simple beginner usage: if all you're comfortable using is {{ form.as_p }}, the new API retains a similarly brief approach.
 3. Vastly better customizability: the new API provides an expressive and flexible means for specifying how forms should be rendered, and allows you to override just the parts that need changing.
 4. Significant improvements to the rendering of form rows with multiple fields (for example, first and last name, or credit card and expiration).
