@@ -11,6 +11,7 @@
     {% block fields %}
         {% for field in form %}
             {% block formrow %}
+                {% formrow field %}
             {% endblock formrow %}
         {% endfor %}
         {% for fields in form.hidden_fields %}
