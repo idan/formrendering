@@ -169,5 +169,8 @@ Similarly, default widgets can be set and reset:
   {% formrow zodiac_sign %}
 
 
+# Also, I want a pony
+
+This might be a good opportunity to change something I've long considered very un-Django-like in Django. Form rendering defaults to using tables for layout, which is semantically icky. How about we make the new default be p, or better yet, div?
 
 
