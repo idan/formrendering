@@ -141,7 +141,32 @@ Often, overriding a specific bit of form rendering behavior is desirable. For ex
 
 To that end, there is the {% formconfig %} tag. It is only valid inside a {% form %} block (or when pulled in via a form layout template). It affects form state, and as such represents the one part of this proposal that I'm not entirely happy with. That being said, I like all of its other properties, and couldn't think of something better which didn't simply shunt the complexity to another location.
 
+The formconfig tag is multimodal: the first argument indicates which behavior to configure. If desired, new modes can be added in the future, and template designers need not hunt around the docs for new configuration arguments; they'd be grouped together under the {% form %} reference documentation.
 
-{% formconfig widget blah.Textarea for "comment" as myformconfig%}
-{% formconfig widget blah.Textarea for forms.charfield %}
-{% formconfig row using "forms/formrows/ul.html" %}
+As shipped with Django, formconfig can operate on widgets and rows:
+
+	{% formconfig widget widgets.Textarea for "comment" %}
+	{% formconfig row using "forms/rows/ul.html" %}
+
+The first statement instructs the form to use a textarea widget for any formfield named "comment." The second instructs the form to use ul's as the default formrow template anytime a {% formrow field %} is encountered.
+
+These statements affect global state within a form, and can be reconfigured multiple times within a form layout:
+
+  {% formconfig row using "forms/rows/p.html" %}
+  {% formrow field1 %}
+  {% formrow field2 %}
+  {% formconfig row using "myrows/fancydiv.html" %}
+  {% formrow field3 %}
+
+Similarly, default widgets can be set and reset:
+
+  {% formconfig widget widgets.TextArea for forms.CharField %}
+  {% formrow bio %}
+  {% formrow interests %}
+  {% formconfig widget widgets.TextInput for forms.CharField %}
+  {% formrow hometown %}
+  {% formrow zodiac_sign %}
+
+
+
+
