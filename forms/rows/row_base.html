@@ -1,5 +1,5 @@
 {% for field in formrow_fields %}
-<{{ rowtag }}>
+{% block rowtag_open %}{% endblock rowtag_open %}
     {{ field.label_tag }}
     {% if field.errors %}
         <ul>
@@ -9,5 +9,5 @@
         </ul>
     {% endif %}
     {% formfield field %}
-</{{ rowtag }}>    
+{% block rowtag_close %}{% endblock rowtag_close %}
 {% endfor %}

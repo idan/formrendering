@@ -1,0 +1,20 @@
+{% for form in forms %}
+    {% block errors %}
+        {% if errors %}
+            <ul>
+            {% for error in form.nonfield_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}        
+            </ul>
+        {% endif %}
+    {% endblock errors %}
+    {% block fields %}
+        {% for field in form %}
+            {% block formrow %}
+            {% endblock formrow %}
+        {% endfor %}
+        {% for fields in form.hidden_fields %}
+            {% formrow field using "forms/rows/hidden.html" %}
+        {% endfor %}
+    {% endblock fields %}
+{% endfor %}
