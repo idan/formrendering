@@ -63,6 +63,11 @@ Users can specify their own form templates using the same syntax:
   {% form myform using "fancy_div.html" %}
   {% form myotherform using "fancy_div.html" %}
 
+Like the include tag, form can pass context into its child template:
+
+  {% form myform using "myform.html" with greeting="Hi!" %}
+  {% form myform using "myform.html" with greeting="Hi!" only %}
+
 The form tag can also load a configuration inline, as follows:
 
   {% form myform using %}
