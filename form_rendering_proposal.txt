@@ -22,7 +22,7 @@ The new form rendering API addresses these drawbacks, and as such, has the follo
 2. Simple beginner usage: if all you're comfortable using is {{ form.as_p }}, the new API retains a similarly brief approach.
 3. Vastly better customizability: the new API provides an expressive and flexible means for specifying how forms should be rendered, and allows you to override just the parts that need changing.
 4. Significant improvements to the rendering of form rows with multiple fields (for example, first and last name, or credit card and expiration).
-5. Dogfooding: the new API does have some new tags, but a lot of the internals and examples for customization are just using the existing template system. This provides a lot of flexibility, but it also means that the "new-newforms" API should feel familiar to existing developers.
+5. Dogfooding: the new API does have some new tags, but a lot of the internals and examples for customization are just using the existing template system. This provides a lot of flexibility, but it also means that the new API should feel familiar to existing developers.
 6. Modularity: it will be possible to produce reusable libraries of form rendering templates.
 
 
@@ -32,14 +32,15 @@ Forms are composed of three logical units:
 
 1. A template which represents the form itself, including some form-specific configuration.
 2. A template which represents a given "row" in a form. A row is an abstract concept, and doesn't have to represent a horizontal slice of anything (but usually does). The existing form rendering API produces rows in the shape of <p>'s, <li>'s, and <tr>'s. In the new form rendering API, Django supplies the formrow templates for all three of these row "types", but users can easily add new ones of these to create a formrow based on <div>'s, for example.
-3. A template which represents a given widget in the form. These are the widgets which are currently supplied by the framework, but supplied as templates instead of being buried in widgets.py.
+3. A template which represents a given widget in the form. These are the widgets which are currently provided by the framework,  but supplied as templates instead of being buried in widgets.py.
 
 # Examples.
 I've prepared example templates for each of these; check out https://github.com/idangazit/formrendering after reading the following tutorial. These represent a good starting point for developing the form templates distributed with Django.
 
 # API Usage Tutorial
 
-TL;DR: The new API introduces the following template tags:
+The new API introduces the following template tags:
+
 - form
 - formconfig
 - formrow
@@ -56,7 +57,7 @@ The new form rendering API introduces a {% form %} tag:
   {% form myform using "forms/layouts/p.html" %}
   {% form myform using "forms/layouts/ul.html" %}
 
-In it simplest incarnation, it works like the existing form.as_XX methods. Users select a row type by means of the optional using argument. Django will need to supply the existing row types (table, p, ul) to ease the transition.
+In its simplest incarnation, it works like the existing form.as_XX methods. Users select a row type by means of the optional using argument. Django will need to supply the existing row types (table, p, ul) to ease the transition.
 
 Users can specify their own form templates using the same syntax:
 
