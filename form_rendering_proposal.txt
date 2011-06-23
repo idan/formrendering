@@ -112,8 +112,31 @@ The formfield tag provides the ability to customize widget rendering for one or 
 
   https://github.com/idangazit/formrendering/blob/master/forms/rows/row_base.html#L11
 
-The field templates are a replacement for the HTML currently buried in the render() methods of forms/widgets.py. Instead of building the HTML strings in python, widgets.py should avail itself of the templates to accomplish its output.
+The field templates are a replacement for the HTML currently buried in the render() methods of forms/widgets.py. Instead of building the HTML strings in python, widgets.py should avail itself of the templates to produce its output.
+
+The default usage of the tag will automatically select a relevant widget using the existing heuristics. Assuming a form with a CharField named "first_name":
+
+  {% formfield first_name %}
+
+Will produce an <input> with the relevant properties.
+
+If customization is desired, users can write their own widget templates:
+
+  {% formfield publish_date using "mywidgets/fancydatetimepicker.html" %}
+
+Bruno Renié's django-floppyforms (https://github.com/brutasse/django-floppyforms) is a lovely example of the kinds of things accomplishable with template-based form widgets.
+
+# Controlling default form rendering behavior
+
+Often, overriding a specific bit of form rendering behavior is desirable. For example:
+
+- You want to use a different widget for one specific field in your form.
+- You want to use a different widget for all fields of a specific type in your form.
+- You want to quickly specify a different default row style for some or all fields in a form.
+
+To that end, there is the {% formconfig %} tag. It is only valid inside a {% form %} block (or when pulled in via a form layout template). It affects form state, and as such represents the one part of this proposal that I'm not entirely happy with. That being said, I like all of its other properties, and couldn't think of something better which didn't simply shunt the complexity to another location.
 
 
-
-
+{% formconfig widget blah.Textarea for "comment" as myformconfig%}
+{% formconfig widget blah.Textarea for forms.charfield %}
+{% formconfig row using "forms/formrows/ul.html" %}
