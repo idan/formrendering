@@ -30,7 +30,7 @@ The new form rendering API addresses these drawbacks, and as such, has the follo
 Forms are composed of three logical units:
 
 1. A template which represents the form itself, including some form-specific configuration.
-2. A template which represents a given "row" in a form. A row is an abstract concept, and doesn't have to represent a horizontal slice of anything (but usually does). The existing form rendering API produces rows in the shape of <p>'s, <li>'s, and <tr>'s. In the new form rendering API, Django supplies the formrow templates for all three of these row "types", but users can easily override one of these to create a formrow based on <div>'s, for example.
+2. A template which represents a given "row" in a form. A row is an abstract concept, and doesn't have to represent a horizontal slice of anything (but usually does). The existing form rendering API produces rows in the shape of <p>'s, <li>'s, and <tr>'s. In the new form rendering API, Django supplies the formrow templates for all three of these row "types", but users can easily add new ones of these to create a formrow based on <div>'s, for example.
 3. A template which represents a given widget in the form. These are the widgets which are currently supplied by the framework, but supplied as templates instead of being buried in widgets.py.
 
 
@@ -49,9 +49,9 @@ For the following examples, "myform" is a form instance present in the template'
 The new form rendering API introduces a {% form %} tag:
  
   {% form myform %} {# equivalent to the following line #}
-  {% form myform using "templates/forms/as_table.html" %}
-  {% form myform using "templates/forms/as_p.html" %}
-  {% form myform using "templates/forms/as_ul.html" %}
+  {% form myform using "forms/as_table.html" %}
+  {% form myform using "forms/as_p.html" %}
+  {% form myform using "forms/as_ul.html" %}
 
 In it simplest incarnation, it works like the existing form.as_XX methods. Users select a row type by means of the optional using argument. Django will need to supply the existing row types (table, p, ul) to ease the transition.
 
@@ -70,7 +70,7 @@ The template contents that go inside a form/endform are identical to those that 
 
 The form tag has one more trick up its sleeve: it can take multiple forms as an argument:
 
-  {% form myform1, myform2 using "templates/forms/as_p.html" %}
+  {% form myform1 myform2 using "forms/as_p.html" %}
 
 In the Django-supplied templates, these would be rendered sequentially, with form errors at the top of every form. However, users can write their own form templates which might mix fields from each form, and group both form's errors at the top.
 
@@ -88,12 +88,12 @@ A form template defines the settings and layout of a form. Let's start with a si
 The formrow tag is responsible for producing a form's row, and is only valid within the scope of a form tag. The formrow tag takes an optional formrow template. If a formrow's template is not specified, the default is used (as_table). Changing the template to produce <p>'s is accomplished thusly:
 
   {% for field in form %}
-    {% formrow field using "templates/forms/rows/as_p.html%}
+    {% formrow field using "forms/rows/as_p.html%}
   {% endfor %}
 
 Formrow, like form, can take multiple fields:
 
-  {% formrow firstname, lastname using "myfancynamerow.html" %}
+  {% formrow firstname lastname using "myfancynamerow.html" %}
 
 Django supplies the formrow templates for table, ul, and p.
 
